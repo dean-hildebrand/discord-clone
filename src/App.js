@@ -1,14 +1,37 @@
-import React from 'react';
-import { useSelector } from 'react-redux'
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux'
 import './App.css';
 import Sidebar from './components/Sidebar'
 import Chat from './components/Chat'
 import Login from './components/Login'
 import { selectUser } from './features/userSlice'
+import { auth } from './app/firebase'
+import { login, logout } from './features/userSlice'
 
 function App() {
-  //special react hook to grab state
+  //hook to dispatch actions
+  const dispatch = useDispatch();
+  //react hook to grab state
   const user = useSelector(selectUser);
+
+  useEffect(() => {
+    auth.onAuthStateChanged((authUser) => {
+      // console.log(authUser);
+      if(authUser) {
+        // user is logged in
+        dispatch(
+          login({
+          uid: authUser.uid,
+          photo: authUser.photoURL,
+          email: authUser.email,
+          displayName: authUser.displayName,
+        }))
+      } else {
+        // user is logged out
+        dispatch(logout());
+      }
+    })
+  }, [dispatch])
   return (
     <div className="app">
     {user ? (

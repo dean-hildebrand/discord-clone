@@ -1,12 +1,26 @@
-import React from 'react'
-import '../css/login.css'
+import React from "react";
+import "../css/login.css";
+import { auth, provider } from '../app/firebase'
+import { Button } from "@material-ui/core";
 
 function Login() {
+  const signIn = () => {
+
+    auth.signInWithPopup(provider)
+    .catch(error => alert(error.message))
+  };
+
   return (
     <div className="login">
-    Login Component
+      <div className="login__logo">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/sco/thumb/9/98/Discord_logo.svg/800px-Discord_logo_svg.png"
+          alt=""
+        />
+      </div>
+      <Button onClick={signIn}>Sign In</Button>
     </div>
-  )
+  );
 }
 
-export default Login
+export default Login;
