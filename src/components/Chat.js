@@ -9,7 +9,8 @@ import EmojiEmotionsIcon from "@material-ui/icons/EmojiEmotions";
 import { useSelector } from "react-redux";
 import { selectUser } from "../features/userSlice";
 import { selectChannelId, selectChannelName } from "../features/appSlice";
-import db from "../app/firebase"
+import db from "../app/firebase";
+import firebase from "firebase";
 
 function Chat() {
   const user = useSelector(selectUser);
@@ -28,7 +29,20 @@ function Chat() {
           setMessages(snapshot.docs.map((doc) => doc.data()))
         );
     }
-  }, []);
+  }, [channelId]);
+
+  const sendMessages = (e) => {
+    e.preventDefault();
+
+    db.collection("channels").doc(channelId).collection("messages").add({
+      // timestamp from firebase module, same everywhere in the world
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      message: input,
+      user: user,
+    });
+
+    setInput("");
+  };
 
   return (
     <div className="chat">
@@ -36,7 +50,11 @@ function Chat() {
 
       <div className="chat__messages">
         {messages.map((message) => (
-          <Message />
+          <Message
+          message={message.message}
+          user={message.user}
+          timestamp={message.timestamp}
+          />
         ))}
       </div>
       <div className="chat__input">
@@ -50,6 +68,7 @@ function Chat() {
             placeholder={`Message #${channelName}`}
           />
           <button
+            onClick={sendMessages}
             disabled={!channelId}
             className="chat__inputButton"
             type="submit"
